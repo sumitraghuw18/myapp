@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form method="POST" action="{{ url_for('add_task') }}">
+    <input type="text" name="task" placeholder="Enter a task" required>
+    <button type="submit">Add Task</button>
+</form>
+<h3>Tasks</h3>
+{% if tasks %}
+{% for task in tasks %}
+<div class="task">
+    {{ task[1] }} <a href="{{ url_for('delete_task', id=task[0]) }}">Delete</a>
+</div>
+{% endfor %}
+{% else %}
+<p>No tasks yet!</p>
+{% endif %}
+{% endblock %}
