@@ -1,8 +1,8 @@
 import logging
 from flask import Flask, render_template, request, redirect, url_for
-from prometheus_flask_exporter import PrometheusMetrics
 import sqlite3
 from datetime import datetime
+import re
 
 # Configure logging
 logging.basicConfig(
@@ -14,12 +14,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-
-# Initialize Prometheus metrics
-metrics = PrometheusMetrics(app)
-
-# Static info metric
-metrics.info('app_info', 'Application info', version='1.0.0')
 
 # Initialize SQLite database
 def init_db():
@@ -69,6 +63,11 @@ def add_task():
         if not task:
             logger.warning("Task input is empty")
             return "Task cannot be empty", 400
+
+        if not re.fullmatch(r'[A-Za-z ]+', task):
+            logger.error(f"Invalid task input with special characters: {task}")
+            return "Task must contain only letters and spaces", 400
+
         conn = sqlite3.connect('tasks.db')
         c = conn.cursor()
         c.execute('INSERT INTO tasks (task) VALUES (?)', (task,))
